@@ -1,0 +1,68 @@
+import pandas as pd
+import sqlite3 as sql
+import numpy as np
+import seaborn as sns
+import matplotlib.pyplot as plt
+%matplotlib inline
+import seaborn as sns
+
+
+from sklearn.model_selection import train_test_split
+from sklearn.linear_model import LogisticRegression
+
+
+data = pd.read_csv("C:/Users/sabareesan.mani/POC/HR_data.csv")
+data
+
+sns.pairplot(data,hue="left",
+             x_vars="average_montly_hours",y_vars="satisfaction_level",height=4)
+
+data['left'].unique()
+
+# Selecting predictors as all columns except the 'left' column
+X = data.columns.drop("left")
+# Setting the target as the 'left' column
+y = data['left']
+
+# Encoding all the features/predictor variables using the get_dummies method()
+data_encoded = pd.get_dummies(data[X])
+# Checking the shape of the input data
+data_encoded.shape
+
+#splitting data into train and test datasets in 85:15 ratio
+X_train,X_test,y_train,y_test = train_test_split(data_encoded, y,test_size=0.15,random_state=100)
+# Checking the shapes of the resulting datasets
+print("Shape of X_train:", X_train.shape)
+print("Shape of y_train:", y_train.shape)
+print("Shape of X_test:", X_test.shape)
+print("Shape of y_test:", y_test.shape)
+
+# Instantiating the required algorithm for model building.
+model = LogisticRegression()
+# Building the model based on the training data.
+model.fit(X_train,y_train)
+
+# Getting the accuracy on training data
+train_accuracy = model.score(X_train,y_train)
+print("Train accuracy = ", train_accuracy)
+# Getting the accuracy on test data
+test_accuracy = model.score(X_test,y_test)
+print("Test accuracy = ", test_accuracy)
+
+# Predicting targets based on the model built
+train_predictions = model.predict(X_train)
+test_predictions = model.predict(X_test)
+# Importing the required function
+from sklearn.metrics import confusion_matrix
+# Creating a confusion matrix on the training data
+train_conf_matrix = confusion_matrix(y_train,train_predictions)
+# Converting the train_conf_matrix into a DataFrame for better readability
+pd.DataFrame(train_conf_matrix,columns=model.classes_,index=model.classes_)
+
+test_conf_matrix = confusion_matrix(y_test,test_predictions)
+pd.DataFrame(test_conf_matrix,columns=model.classes_,index=model.classes_)
+
+# Importing the required function
+from sklearn.metrics import classification_report
+# Generating the report and printing the same
+print(classification_report(y_test,test_predictions))
