@@ -12,10 +12,12 @@ from sklearn.linear_model import LogisticRegression
 
 
 data = pd.read_csv("C:/Users/sabareesan.mani/POC/HR_data.csv")
-data
 
 sns.pairplot(data,hue="left",
              x_vars="average_montly_hours",y_vars="satisfaction_level",height=4)
+
+sns.pairplot(data,hue="left",
+             x_vars="average_montly_hours",y_vars="salary",height=4)
 
 data['left'].unique()
 
@@ -29,8 +31,8 @@ data_encoded = pd.get_dummies(data[X])
 # Checking the shape of the input data
 data_encoded.shape
 
-#splitting data into train and test datasets in 85:15 ratio
-X_train,X_test,y_train,y_test = train_test_split(data_encoded, y,test_size=0.15,random_state=100)
+#splitting data into train and test datasets in 70:30 ratio
+X_train,X_test,y_train,y_test = train_test_split(data_encoded, y,test_size=0.30,random_state=100)
 # Checking the shapes of the resulting datasets
 print("Shape of X_train:", X_train.shape)
 print("Shape of y_train:", y_train.shape)
@@ -59,8 +61,21 @@ train_conf_matrix = confusion_matrix(y_train,train_predictions)
 # Converting the train_conf_matrix into a DataFrame for better readability
 pd.DataFrame(train_conf_matrix,columns=model.classes_,index=model.classes_)
 
+# Confusion matrix for the test data
 test_conf_matrix = confusion_matrix(y_test,test_predictions)
 pd.DataFrame(test_conf_matrix,columns=model.classes_,index=model.classes_)
+
+# Calculating train accuracy from confusion matrix
+train_correct_predictions = train_conf_matrix[0][0]+train_conf_matrix[1][1]
+train_total_predictions = train_conf_matrix.sum()
+train_accuracy = train_correct_predictions/train_total_predictions
+print(train_accuracy)
+
+# Calculating test accuracy from confusion matrix
+test_correct_predictions = test_conf_matrix[0][0]+test_conf_matrix[1][1]
+total_predictions = test_conf_matrix.sum()
+test_accuracy = test_correct_predictions/total_predictions
+print(test_accuracy)
 
 # Importing the required function
 from sklearn.metrics import classification_report
